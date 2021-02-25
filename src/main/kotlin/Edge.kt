@@ -1,1 +1,1 @@
-data class Edge(val a: Int, val b: Int)
+data class Edge(val a: Vector3, val b: Vector3)

@@ -1,46 +1,35 @@
 import java.awt.BorderLayout
-import java.io.File
 import javax.swing.*
 
 class MainForm : JFrame("Anaglyph") {
     private var timer: Timer
     private val viewer = Viewport()
-    private lateinit var wireframe: Wireframe
+    private lateinit var edges: Array<Edge>
 
     fun start() {
-        wireframe = Importer.read("beethoven.obj")
+        edges = Importer.read("nutbolt.obj")
         timer.start()
-    }
-
-    fun stop() = timer.stop()
-
-    private fun load(path: String) {
-        wireframe = Importer.read(path)
-    }
-
-    private fun buildButtonPanel(): JPanel {
-        val panel = JPanel()
-        panel.layout = BoxLayout(panel, BoxLayout.X_AXIS)
-        arrayOf("ram.obj", "beetle.obj", "aircar.obj", "dooleys.obj", "nutbolt.obj", "urn.obj",
-                "reel.obj", "raider.obj", "tut.obj", "scene.obj", "dinorider.obj", "spacefrigate.obj")
-                .forEach { panel.add(buildButton(it)) }
-        return panel
-    }
-
-    private fun buildButton(filename: String) = JButton(File(filename).nameWithoutExtension.capitalize()).apply {
-        isFocusPainted = false
-        addActionListener { load(filename) }
     }
 
     init {
         defaultCloseOperation = EXIT_ON_CLOSE
         layout = BorderLayout()
-        contentPane.add(viewer, BorderLayout.CENTER)
         contentPane.add(buildButtonPanel(), BorderLayout.NORTH)
+        contentPane.add(viewer, BorderLayout.CENTER)
         pack()
         isResizable = false
         setLocationRelativeTo(null)
         isVisible = true
-        timer = Timer(16) { viewer.render(wireframe) }
+        timer = Timer(10) { viewer.render(edges) }
+    }
+
+    private fun buildButtonPanel() = JPanel().apply {
+        layout = BoxLayout(this, BoxLayout.X_AXIS)
+        arrayOf("ram", "beetle", "dooleys", "nutbolt", "urn", "reel", "tut", "scene", "dinorider", "spacefrigate").map { name ->
+            JButton(name.capitalize()).apply {
+                isFocusPainted = false
+                addActionListener { edges = Importer.read("${name}.obj") }
+            }
+        }.forEach { add(it) }
     }
 }
